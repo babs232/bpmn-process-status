@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0syzzxq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.6.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.1.0">
+  <bpmn:process id="Process_1w0nltk" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1su5wk0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1su5wk0" sourceRef="StartEvent_1" targetRef="ENTRY_STATE_VALIDATION" />
+    <bpmn:serviceTask id="ENTRY_STATE_VALIDATION" name="Entry State Validation">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_1su5wk0</bpmn:incoming>
+      <bpmn:outgoing>TO_TRANSACTION_LOG_1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="TO_TRANSACTION_LOG_1" sourceRef="ENTRY_STATE_VALIDATION" targetRef="TRANSACTION_LOG_1" />
+    <bpmn:serviceTask id="TRANSACTION_LOG_1" name="Transaction Logged">
+      <bpmn:incoming>TO_TRANSACTION_LOG_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_TRANSACTION_AUTH</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_TO_TRANSACTION_AUTH" sourceRef="TRANSACTION_LOG_1" targetRef="TRANS_AUTH" />
+    <bpmn:serviceTask id="TRANS_AUTH" name="Transaction Authentication">
+      <bpmn:incoming>Flow_TO_TRANSACTION_AUTH</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_GATEWAY_1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_IS_TRANS_AUTH_SUCCESS">
+      <bpmn:incoming>Flow_TO_GATEWAY_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_TRANS_PROC</bpmn:outgoing>
+      <bpmn:outgoing>Flow_TO_TRANSACTION_LOG_2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_TO_GATEWAY_1" sourceRef="TRANS_AUTH" targetRef="Gateway_IS_TRANS_AUTH_SUCCESS" />
+    <bpmn:endEvent id="Event_0t546gq">
+      <bpmn:incoming>Flow_TO_END_1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_TO_TRANS_PROC" name="Success" sourceRef="Gateway_IS_TRANS_AUTH_SUCCESS" targetRef="TRANS_PROC" />
+    <bpmn:subProcess id="TRANS_PROC" name="Transaction Processing">
+      <bpmn:incoming>Flow_TO_TRANS_PROC</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_GATEWAY_2</bpmn:outgoing>
+    </bpmn:subProcess>
+    <bpmn:exclusiveGateway id="Gateway_IS_TRANS_PROC_SUCCESS">
+      <bpmn:incoming>Flow_TO_GATEWAY_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_AUTH</bpmn:outgoing>
+      <bpmn:outgoing>Flow_TO_TRANSACTION_LOG_3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_TO_GATEWAY_2" sourceRef="TRANS_PROC" targetRef="Gateway_IS_TRANS_PROC_SUCCESS" />
+    <bpmn:endEvent id="Event_1ai7yqf">
+      <bpmn:incoming>Flow_TO_END_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_TO_AUTH" name="Success" sourceRef="Gateway_IS_TRANS_PROC_SUCCESS" targetRef="AUTH" />
+    <bpmn:serviceTask id="AUTH" name="Authorization">
+      <bpmn:incoming>Flow_TO_AUTH</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_GATEWAY_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_0m2pyzv">
+      <bpmn:incoming>Flow_TO_GATEWAY_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_END_4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_TO_TRANSACTION_LOG_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_TO_GATEWAY_3" sourceRef="AUTH" targetRef="Gateway_0m2pyzv" />
+    <bpmn:endEvent id="Event_0of9s95">
+      <bpmn:incoming>Flow_TO_END_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="Event_06j5joa">
+      <bpmn:incoming>Flow_TO_END_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_TO_END_4" name="Success" sourceRef="Gateway_0m2pyzv" targetRef="Event_06j5joa" />
+    <bpmn:sequenceFlow id="Flow_TO_TRANSACTION_LOG_2" name="Failure" sourceRef="Gateway_IS_TRANS_AUTH_SUCCESS" targetRef="TRANSACTION_LOG_2" />
+    <bpmn:serviceTask id="TRANSACTION_LOG_2" name="Transaction Logged">
+      <bpmn:incoming>Flow_TO_TRANSACTION_LOG_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_END_1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_TO_END_1" sourceRef="TRANSACTION_LOG_2" targetRef="Event_0t546gq" />
+    <bpmn:sequenceFlow id="Flow_TO_TRANSACTION_LOG_3" name="Failure" sourceRef="Gateway_IS_TRANS_PROC_SUCCESS" targetRef="TRANSACTION_LOG_3" />
+    <bpmn:serviceTask id="TRANSACTION_LOG_3" name="Transaction Logged">
+      <bpmn:incoming>Flow_TO_TRANSACTION_LOG_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_END_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_TO_END_2" sourceRef="TRANSACTION_LOG_3" targetRef="Event_1ai7yqf" />
+    <bpmn:sequenceFlow id="Flow_TO_TRANSACTION_LOG_4" name="Failure" sourceRef="Gateway_0m2pyzv" targetRef="Activity_04b1q2f" />
+    <bpmn:serviceTask id="Activity_04b1q2f" name="Transaction Logged">
+      <bpmn:incoming>Flow_TO_TRANSACTION_LOG_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_TO_END_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_TO_END_3" sourceRef="Activity_04b1q2f" targetRef="Event_0of9s95" />
+    <bpmn:textAnnotation id="TextAnnotation_07vnzpr">
+      <bpmn:text>Transaction Unique ID will be generated at this step</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_1w00sk6" sourceRef="ENTRY_STATE_VALIDATION" targetRef="TextAnnotation_07vnzpr" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1w0nltk">
+      <bpmndi:BPMNShape id="TextAnnotation_07vnzpr_di" bpmnElement="TextAnnotation_07vnzpr">
+        <dc:Bounds x="370" y="50" width="99.99305040770942" height="69.68124536693847" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hkcq9b_di" bpmnElement="ENTRY_STATE_VALIDATION">
+        <dc:Bounds x="270" y="137" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_029bu29_di" bpmnElement="TRANSACTION_LOG_1">
+        <dc:Bounds x="430" y="137" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xbr15w_di" bpmnElement="TRANS_AUTH">
+        <dc:Bounds x="590" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0gzp122_di" bpmnElement="Gateway_IS_TRANS_AUTH_SUCCESS" isMarkerVisible="true">
+        <dc:Bounds x="755" y="152" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_175isfx_di" bpmnElement="Gateway_IS_TRANS_PROC_SUCCESS" isMarkerVisible="true">
+        <dc:Bounds x="1075" y="152" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0m7l8pl_di" bpmnElement="AUTH">
+        <dc:Bounds x="1210" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0m2pyzv_di" bpmnElement="Gateway_0m2pyzv" isMarkerVisible="true">
+        <dc:Bounds x="1395" y="152" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_06j5joa_di" bpmnElement="Event_06j5joa">
+        <dc:Bounds x="1532" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0t546gq_di" bpmnElement="Event_0t546gq">
+        <dc:Bounds x="762" y="452" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ibt8lb_di" bpmnElement="TRANSACTION_LOG_2">
+        <dc:Bounds x="730" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ai7yqf_di" bpmnElement="Event_1ai7yqf">
+        <dc:Bounds x="1082" y="452" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1v4i9ni_di" bpmnElement="TRANSACTION_LOG_3">
+        <dc:Bounds x="1050" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0of9s95_di" bpmnElement="Event_0of9s95">
+        <dc:Bounds x="1402" y="452" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1o49st5_di" bpmnElement="Activity_04b1q2f">
+        <dc:Bounds x="1370" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_1w00sk6_di" bpmnElement="Association_1w00sk6">
+        <di:waypoint x="356" y="137" />
+        <di:waypoint x="371" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1h3tlhx_di" bpmnElement="TRANS_PROC">
+        <dc:Bounds x="890" y="137" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1su5wk0_di" bpmnElement="Flow_1su5wk0">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="270" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16cuir0_di" bpmnElement="TO_TRANSACTION_LOG_1">
+        <di:waypoint x="370" y="177" />
+        <di:waypoint x="430" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_112v7xx_di" bpmnElement="Flow_TO_TRANSACTION_AUTH">
+        <di:waypoint x="530" y="177" />
+        <di:waypoint x="590" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1696est_di" bpmnElement="Flow_TO_GATEWAY_1">
+        <di:waypoint x="690" y="177" />
+        <di:waypoint x="755" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ewd3d8_di" bpmnElement="Flow_TO_TRANS_PROC">
+        <di:waypoint x="805" y="177" />
+        <di:waypoint x="890" y="177" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="826" y="159" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13u3z62_di" bpmnElement="Flow_TO_GATEWAY_2">
+        <di:waypoint x="990" y="177" />
+        <di:waypoint x="1075" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0aimcv3_di" bpmnElement="Flow_TO_AUTH">
+        <di:waypoint x="1125" y="177" />
+        <di:waypoint x="1210" y="177" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1146" y="159" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0iihhg5_di" bpmnElement="Flow_TO_GATEWAY_3">
+        <di:waypoint x="1310" y="177" />
+        <di:waypoint x="1395" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dpg45t_di" bpmnElement="Flow_TO_END_4">
+        <di:waypoint x="1445" y="177" />
+        <di:waypoint x="1532" y="177" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1467" y="159" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01ov1ly_di" bpmnElement="Flow_TO_TRANSACTION_LOG_2">
+        <di:waypoint x="780" y="202" />
+        <di:waypoint x="780" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="778" y="238" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h8tern_di" bpmnElement="Flow_TO_END_1">
+        <di:waypoint x="780" y="360" />
+        <di:waypoint x="780" y="452" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05hd2ei_di" bpmnElement="Flow_TO_TRANSACTION_LOG_3">
+        <di:waypoint x="1100" y="202" />
+        <di:waypoint x="1100" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1098" y="238" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1f44oyq_di" bpmnElement="Flow_TO_END_2">
+        <di:waypoint x="1100" y="360" />
+        <di:waypoint x="1100" y="452" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_006px02_di" bpmnElement="Flow_TO_TRANSACTION_LOG_4">
+        <di:waypoint x="1420" y="202" />
+        <di:waypoint x="1420" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1418" y="238" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13a0efa_di" bpmnElement="Flow_TO_END_3">
+        <di:waypoint x="1420" y="360" />
+        <di:waypoint x="1420" y="452" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_0wh8gpr">
+    <bpmndi:BPMNPlane id="BPMNPlane_01uuxkr" bpmnElement="TRANS_PROC" />
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
